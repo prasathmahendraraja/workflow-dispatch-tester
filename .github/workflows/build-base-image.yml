@@ -13,6 +13,7 @@ jobs:
         id: dispatch_workflow
         run: |
           TRIGGER_ID=$(date +%s)
+          echo $TRIGGER_ID
           echo "TRIGGER_ID=$TRIGGER_ID" >> $GITHUB_OUTPUT
 
       - name: Dispatch Workflow  
