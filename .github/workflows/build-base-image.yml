@@ -76,3 +76,21 @@ jobs:
             fi
             sleep 15
           done
+
+
+      - name: Pull Tag and Push Base Images To Registry
+        if: ${{ github.event.inputs.rebuild == 'true' }}
+        run: |
+          #!/bin/sh
+
+          NODE_VERSIONS=("16" "24")
+          
+          # Iterate over each Node.js version and initiate a pipeline if the rebuild image is selected manually.
+          for NODE_VERSION in "${NODE_VERSIONS[@]}"; do
+            docker pull prasathmahendraraja/alpine-node:$NODE_VERSION
+            docker pull prasathmahendraraja/alpine-node-git:$NODE_VERSION
+            docker pull prasathmahendraraja/alpine-node-java:$NODE_VERSION
+            docker pull prasathmahendraraja/node:$NODE_VERSION-alpine-python3-sqlite3-chromedriver-git
+            
+          done
+        
