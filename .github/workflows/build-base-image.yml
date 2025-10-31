@@ -9,14 +9,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get Trigger Id
-        id: dispatch_workflow
+      - name: Generate Trigger Id
+        id: gen
         run: |
           TRIGGER_ID=$(date +%s)
           echo $TRIGGER_ID
           echo "TRIGGER_ID=$TRIGGER_ID" >> $GITHUB_OUTPUT
 
-      - name: Dispatch Workflow  
+      - name: Dispatch Public Workflow  
         run : |
           response=$(curl -s -X POST \
             -H "Accept: application/vnd.github.v3+json" \
@@ -30,7 +30,7 @@ jobs:
       - name: Wait a few seconds to let the child start
         run: sleep 10
 
-      - name: Get child workflow run ID
+      - name: Get public workflow run ID
         id: get_run
         run: |
           RUN_ID=""
