@@ -12,6 +12,7 @@ jobs:
       - name: Generate Trigger Id
         id: gen
         run: |
+          #!/bin/sh
           TRIGGER_ID=$(date +%s)
           echo $TRIGGER_ID
           echo "TRIGGER_ID=$TRIGGER_ID" >> $GITHUB_OUTPUT
@@ -23,7 +24,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
             --insecure \
             https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/workflows/build-and-push-base-images.yml/dispatches \
-            -d "{\"ref\": \"main\", \"inputs\": {\"trigger_id\": \"${{ steps.gen.outputs.trigger_id }}\"}}")          
+            -d '{"ref": "main", "inputs": {"trigger_id": "${{ steps.gen.outputs.trigger_id }}"}}')          
           
           echo "$response"
 
