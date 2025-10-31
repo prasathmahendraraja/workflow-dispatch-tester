@@ -27,8 +27,6 @@ jobs:
             https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/workflows/build-and-push-base-images.yml/dispatches \
             -d '{"ref": "main", "inputs": {"trigger_id": "${{ steps.gen.outputs.trigger_id }}"}}')          
           
-          echo "Response From Dispatch: $response"
-
       - name: Wait a few seconds to let the child start
         run: sleep 10
 
