@@ -6,7 +6,7 @@ on:
       rebuild:
         description: 'Rebuild Base Images'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 jobs:
@@ -14,22 +14,6 @@ jobs:
     runs-on: [SRE-Runner]
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Login to DockerHub
-        run: |
-          #!/bin/sh
-
-          # Set Source Docker registry and credentials
-          export DOCKERHUB_REGISTRY="docker.io"
-          export STAGING_REGISTRY="docker.io"
-
-          # Note this uses NPID
-          export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-          export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-
-          # Login to both dockerhub and staging registry
-          echo "$DOCKER_PASSWORD" | docker login $DOCKERHUB_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
-          echo "$DOCKER_PASSWORD" | docker login $STAGING_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Dispatch Public Github Workflow for Building Base Images
         id: dispatch_workflow
@@ -39,7 +23,7 @@ jobs:
           echo "TRIGGER_ID=$TRIGGER_ID" >> $GITHUB_OUTPUT
           response=$(curl -s -X POST \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ secrets.DOCKER_PASSWORD }}" \
+            -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
             --insecure \
             https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/workflows/build-and-push-base-images.yml/dispatches \
             -d "{\"ref\": \"main\", \"inputs\": {\"trigger_id\": \"${{ steps.gen.outputs.trigger_id }}\"}}"          
@@ -53,7 +37,7 @@ jobs:
             echo "Attempt $i: Checking for child workflow run..."
             RUN_ID=$(curl -s \
               -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
               "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/workflows/build-and-push-base-images.yml/runs?branch=main&event=workflow_dispatch" \
               | jq -r '.workflow_runs[] | select(.head_branch=="main") | .id' | head -n 1)
 
@@ -66,7 +50,7 @@ jobs:
           done
 
           # while true; do
-          #   status=$(curl -s -H "Authorization: token ${{ secrets.DOCKER_PASSWORD }}" \
+          #   status=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           #     "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/runs/$RUN_ID" | jq -r .status)
           #   echo "Current status: $status"
           #   if [[ "$status" == "completed" ]]; then
@@ -85,12 +69,12 @@ jobs:
           while true; do
             STATUS=$(curl -s \
               -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
               "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/runs/${{ steps.get_run.outputs.run_id }}" \
               | jq -r '.status')
             CONCLUSION=$(curl -s \
               -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
               "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/runs/${{ steps.get_run.outputs.run_id }}" \
               | jq -r '.conclusion')
             echo "Status: $STATUS | Conclusion: $CONCLUSION"
@@ -105,22 +89,3 @@ jobs:
             fi
             sleep 15
           done
-
-
-      # - name: Poll Workflow Status
-      #   run: |
-      #     RUN_ID=${{ steps.dispatch_workflow.outputs.run_id }}
-      #     echo "Polling workflow run ID: $RUN_ID"
-      #     while true; do
-      #       status=$(curl -s -H "Authorization: token ${{ secrets.DOCKER_PASSWORD }}" \
-      #         "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/runs/$RUN_ID" | jq -r .status)
-      #       echo "Current status: $status"
-      #       if [[ "$status" == "completed" ]]; then
-      #         echo "Workflow completed."
-      #         break
-      #       elif [[ "$status" == "failed" ]]; then
-      #         echo "Workflow failed."
-      #         exit 1
-      #       fi
-      #       sleep 10  # Wait for 10 seconds before polling again
-      #     done
