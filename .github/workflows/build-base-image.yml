@@ -68,7 +68,7 @@ jobs:
             if [ "$STATUS" = "completed" ]; then
               if [ "$CONCLUSION" = "success" ]; then
                 echo "✅ Dispatched workflow completed successfully!"
-                exit 0
+                break
               else
                 echo "❌ Dispatched workflow failed!"
                 exit 1
@@ -79,12 +79,9 @@ jobs:
 
 
       - name: Pull Tag and Push Base Images To Registry
-        if: ${{ github.event.inputs.rebuild == 'true' }}
         run: |
-          #!/bin/sh
-
           NODE_VERSIONS=("16" "24")
-          
+
           # Iterate over each Node.js version and initiate a pipeline if the rebuild image is selected manually.
           for NODE_VERSION in "${NODE_VERSIONS[@]}"; do
             docker pull prasathmahendraraja/alpine-node:$NODE_VERSION
