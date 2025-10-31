@@ -26,7 +26,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" \
             --insecure \
             https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/workflows/build-and-push-base-images.yml/dispatches \
-            -d "{\"ref\": \"main\", \"inputs\": {\"trigger_id\": \"${{ steps.gen.outputs.trigger_id }}\"}}"          
+            -d "{\"ref\": \"main\", \"inputs\": {\"trigger_id\": \"${{ steps.gen.outputs.trigger_id }}\"}}")          
           
           echo "$response"
 
