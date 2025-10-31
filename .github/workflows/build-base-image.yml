@@ -49,20 +49,6 @@ jobs:
             sleep 5
           done
 
-          # while true; do
-          #   status=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
-          #     "https://api.github.com/repos/prasathmahendraraja/sre-base-image-builder/actions/runs/$RUN_ID" | jq -r .status)
-          #   echo "Current status: $status"
-          #   if [[ "$status" == "completed" ]]; then
-          #     echo "Workflow completed."
-          #     break
-          #   elif [[ "$status" == "failed" ]]; then
-          #     echo "Workflow failed."
-          #     exit 1
-          #   fi
-          #   sleep 10  # Wait for 10 seconds before polling again
-          done
-
       - name: Wait for dispatched workflow to finish
         if: steps.get_run.outputs.run_id != ''
         run: |
